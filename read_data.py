@@ -6,9 +6,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
+path = os.path.dirname(os.path.abspath(__file__))
 
 def get_dirs():
-    path = os.path.dirname(os.path.abspath(__file__))
 
     alex_files = os.listdir(f"{path}/data/Alex")
     alex_pics = [f"{path}/data/Alex/{fname}" for fname in alex_files]
@@ -26,9 +26,21 @@ def read_image(image_path):
     image_array = np.array(image)
     return image_array
 
-if __name__ == "__main__":
+def get_image_data():
     df = get_dirs()
     df["image"] = df["path"].map(read_image)
+
+    manual_tagging = Path(f"{path}/manual_tagging.csv")
+
+    if manual_tagging.is_file():
+        df_tags = pd.read_csv(f"{path}/manual_tagging.csv")
+
+        df = pd.merge(df, df_tags, on="fname")
+    return df
+
+# A function to let us manually tag images with certain features. Results are stored in a .csv and are 
+def tag_images():
+    df = get_image_data()
 
     manual_columns = ["q1", "q2", "q3", "q4"]
 
@@ -49,17 +61,19 @@ if __name__ == "__main__":
 
         manual_input.append(input_map)
 
-        if len(manual_input) == 3:
-            break
-
         plt.close()
     
     # Reformat the inputs so that we can make a dataframe
     df_dict = {}
-    df_dict["fname"] = list(df["fname"])[:3]
+    df_dict["fname"] = list(df["fname"])
 
     for col in manual_columns:
         df_dict[col] = [x[col] for x in manual_input]
 
     input_df = pd.DataFrame(df_dict)
-    input_df.to_csv("manual_tagging.csv")
+    input_df.to_csv(f"{path}/manual_tagging.csv")
+
+
+if __name__ == "__main__":
+    tag_images()
+
