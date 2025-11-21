@@ -75,5 +75,6 @@ def tag_images():
 
 
 if __name__ == "__main__":
-    tag_images()
+    df = get_image_data()
+    print(df.shape)
 
