@@ -65,6 +65,18 @@ def tag_images():
 
         manual_input.append(input_map)
 
+
+
+        done = int(input(f"0/1 continue?: "))
+        if(done == 1):
+            manual_input.append(input_map)
+        else:
+            input_map = {}
+            for col in manual_columns:
+                input_map[col] = int(input(f"0/1 | {col} : "))
+                manual_input.append(input_map)
+        # manual_input.append(input_map)
+
         plt.close()
     
     # Reformat the inputs so that we can make a dataframe
