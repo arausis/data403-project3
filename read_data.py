@@ -10,7 +10,7 @@ path = os.path.dirname(os.path.abspath(__file__))
 
 def get_holdout(df):
     df_holdout = df.sample(frac=0.2, random_state=42)
-    df_training  = df.drop(df_fifth.index)
+    df_training  = df.drop(df_holdout.index)
     return df_holdout, df_training
 
 def get_dirs():
