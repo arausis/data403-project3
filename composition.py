@@ -30,7 +30,7 @@ def get_image_data():
     df = get_dirs()
     df["image"] = df["path"].map(read_image)
 
-    manual_tagging = Path(f"{path}/manual_tagging_composition.csv.csv")
+    manual_tagging = Path(f"{path}/manual_tagging_composition.csv")
 
     if manual_tagging.is_file():
         df_tags = pd.read_csv(f"{path}/manual_tagging_composition.csv")
@@ -39,13 +39,16 @@ def get_image_data():
     return df
 
 # A function to let us manually tag images with certain features. Results are stored in a .csv and are 
-def tag_images():
+def tag_comp_images():
     df = get_image_data()
 
     manual_columns = ["tilted", "clearFocalObject", "vibrant", "selfie", "majoritySky"]
 
     manual_input = []
 
+    image_names = df['fname']
+    image_names.to_csv("/Users/nicoleyee/Desktop/4/DATA 403/image_names.csv")
+    print(df["fname"])
     for file in list(df["fname"]):
         image_array = df[df["fname"].map(lambda x: x == file)]["image"].iloc[0]
 
@@ -60,17 +63,26 @@ def tag_images():
             input_map[col] = int(input(f"0/1 | {col} : "))
 
         done = int(input(f"0/1 continue?: "))
-        if(done == 1):
-            manual_input.append(input_map)
-        else:
+        while(done == 0):
             input_map = {}
             for col in manual_columns:
                 input_map[col] = int(input(f"0/1 | {col} : "))
-                manual_input.append(input_map)
+            done = int(input(f"0/1 continue?: "))
+        manual_input.append(input_map)
+        
+
+
+        # if(done == 1):
+        #     manual_input.append(input_map)
+        # else:
+        #     input_map = {}
+        #     for col in manual_columns:
+        #         input_map[col] = int(input(f"0/1 | {col} : "))
+        #         manual_input.append(input_map)
         # manual_input.append(input_map)
 
         plt.close()
-    
+
     # Reformat the inputs so that we can make a dataframe
     df_dict = {}
     df_dict["fname"] = list(df["fname"])
@@ -81,6 +93,34 @@ def tag_images():
     input_df = pd.DataFrame(df_dict)
     input_df.to_csv(f"{path}/manual_tagging_composition.csv")
 
+def view_images():
+    i = 1
+    manual_columns = ["next"]
+    manual_input = []
+    
+    print("start")
+    df = get_image_data()
+
+    for file in list(df["fname"]):
+        print(i)
+        image_array = df[df["fname"].map(lambda x: x == file)]["image"].iloc[0]
+
+        plt.imshow(image_array)
+        plt.show(block=False)
+
+        input_map = {}
+
+        # Record the input for each column
+        print()
+        for col in manual_columns:
+            input_map[col] = int(input(f"Y/n | {col} : ").strip().lower() == "y")
+
+        manual_input.append(input_map)
+
+        print()
+        i += 1
+        plt.close()
 
 if __name__ == "__main__":
-    tag_images()
+    # tag_comp_images()
+    view_images()
