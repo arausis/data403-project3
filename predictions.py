@@ -3,7 +3,6 @@ import matplotlib.pyplot as plt
 from read_data import *
 import os
 import numpy as np
-from tqdm import tqdm
 import torch
 import torch.nn as nn
 from torch.utils.data import Dataset, DataLoader
