@@ -21,6 +21,16 @@ def get_dirs():
     df = pd.DataFrame({"fname" : alex_files + kelly_files, "label": alabel + klabel, "path" : alex_pics + kelly_pics})
     return df
 
+def get_test_data():
+    holdout_files = os.listdir(f"{path}/data/HoldoutSet01")
+    holdout_pics = [f"{path}/data/HoldoutSet01/{fname}" for fname in holdout_files]
+    df = pd.DataFrame({"path" : holdout_pics, "fname" : holdout_files})
+
+    df["image"] = df["path"].map(read_image)
+
+    return df
+
+
 def read_image(image_path):
     image = Image.open(image_path).convert("RGB")
     image_array = np.array(image)
