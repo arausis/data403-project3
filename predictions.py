@@ -69,4 +69,4 @@ df["probabilities"] = all_probs
 
 df["pred"] = df["pred"].map(lambda x: "Kelly" if x == 1 else "Alex")
 
-print(df[["fname", "pred"]])
+print(df[["fname", "pred", "probabilities"]])
