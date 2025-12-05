@@ -3,7 +3,6 @@ import matplotlib.pyplot as plt
 from read_data import *
 import os
 import numpy as np
-from tqdm import tqdm
 import torch
 import torch.nn as nn
 from torch.utils.data import Dataset, DataLoader
@@ -69,4 +68,4 @@ df["probabilities"] = all_probs
 
 df["pred"] = df["pred"].map(lambda x: "Kelly" if x == 1 else "Alex")
 
-print(df[["fname", "pred"]])
+print(df[["fname", "pred", "probabilities"]])

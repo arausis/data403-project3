@@ -8,6 +8,28 @@ import matplotlib.pyplot as plt
 
 path = os.path.dirname(os.path.abspath(__file__))
 
+f_holdout_labels= {"TestSetImage01.png": "Kelly",
+"TestSetImage02.png":"Alex",
+"TestSetImage03.png":"Alex",
+"TestSetImage04.png":"Alex",
+"TestSetImage05.png":"Alex",
+"TestSetImage06.png":"Alex",
+"TestSetImage07.png":"Kelly",
+"TestSetImage08.png":"Kelly",
+"TestSetImage09.png":"Kelly",
+"TestSetImage10.png":"Kelly",
+"TestSetImage11.png":"Kelly",
+"TestSetImage12.png":"Alex",
+"TestSetImage13.png":"Kelly",
+"TestSetImage14.png":"Kelly",
+"TestSetImage15.png":"Kelly",
+"TestSetImage16.png":"Kelly",
+"TestSetImage17.png":"Alex",
+"TestSetImage18.png":"Alex",
+"TestSetImage19.png":"Alex",
+"TestSetImage20.png":"Alex"}
+
+
 def get_dirs():
 
     alex_files = os.listdir(f"{path}/data/Alex")
@@ -18,12 +40,16 @@ def get_dirs():
     kelly_pics = [f"{path}/data/Kelly/{fname}" for fname in kelly_files]
     klabel = [1] * len(kelly_pics)
 
-    df = pd.DataFrame({"fname" : alex_files + kelly_files, "label": alabel + klabel, "path" : alex_pics + kelly_pics})
+    holdout_files1 = os.listdir(f"{path}/data/HoldoutSet01")
+    holdout_pics1 = [f"{path}/data/HoldoutSet01/{fname}" for fname in holdout_files1]
+    holdout_labels1 = [f_holdout_labels[x] for x in holdout_files1 ]
+
+    df = pd.DataFrame({"fname" : alex_files + kelly_files + holdout_files1, "label": alabel + klabel + holdout_pics1, "path" : alex_pics + kelly_pics + holdout_labels1})
     return df
 
 def get_test_data():
-    holdout_files = os.listdir(f"{path}/data/HoldoutSet01")
-    holdout_pics = [f"{path}/data/HoldoutSet01/{fname}" for fname in holdout_files]
+    holdout_files = os.listdir(f"{path}/data/HoldoutSet02")
+    holdout_pics = [f"{path}/data/HoldoutSet02/{fname}" for fname in holdout_files]
     df = pd.DataFrame({"path" : holdout_pics, "fname" : holdout_files})
 
     df["image"] = df["path"].map(read_image)
@@ -85,5 +111,5 @@ def tag_images():
 
 
 if __name__ == "__main__":
-    tag_images()
+    print(get_dirs())
 
