@@ -40,54 +40,84 @@ def get_image_data():
 
 # A function to let us manually tag images with certain features. Results are stored in a .csv and are 
 def tag_images():
-    df = get_image_data()
+    """
+    Manually tag each image with binary (0/1) content features.
+    - Saves to content_features.csv
+    - Saves progress after each image
+    - Skips images that are already tagged
+    - After answering all prompts for an image, you can confirm or redo
+      that image's answers before they are saved.
+    """
+    df = get_dirs()
+    manual_columns = [
+        "person", "building", "indoors", "bodwinPeople",
+        "event", "gameNight", "sports", "concert"
+    ]
 
-    # event = concert/game/sports night
-    # bodwinPeople = blonde girl, husband, stats profs
+    csv_path = Path(f"{path}/content_features.csv")
 
-    manual_columns = ["person", "building", "indoors", "bodwinPeople", "event", "gameNight", "sports", "concert"] 
+    # Load existing progress if available
+    if csv_path.is_file():
+        tagged_df = pd.read_csv(csv_path)
+        tagged_files = set(tagged_df["fname"].tolist())
+        print(f"Loaded {len(tagged_files)} previously tagged images.")
+    else:
+        tagged_df = pd.DataFrame(columns=["fname"] + manual_columns)
+        tagged_files = set()
 
+    for _, row in df.iterrows():
+        fname = row["fname"]
 
-    manual_input = []
+        # Skip images already tagged
+        if fname in tagged_files:
+            continue
 
-    for file in list(df["fname"]):
-        image_array = df[df["fname"].map(lambda x: x == file)]["image"].iloc[0]
-
+        image_array = read_image(row["path"])
         plt.imshow(image_array)
+        plt.axis("off")
         plt.show(block=False)
 
-        input_map = {}
+        while True:
+            # Collect 0/1 answers for this image
+            input_map = {"fname": fname}
 
-        # Record the input for each column
-        print()
-        for col in manual_columns:
-            input_map[col] = int(input(f"Y/n | {col} : ").strip().lower() == "y")
-
-        manual_input.append(input_map)
-
-
-
-        done = int(input(f"0/1 continue?: "))
-        if(done == 1):
-            manual_input.append(input_map)
-        else:
-            input_map = {}
             for col in manual_columns:
-                input_map[col] = int(input(f"0/1 | {col} : "))
-                manual_input.append(input_map)
-        # manual_input.append(input_map)
+                while True:
+                    ans = input(f"0/1 | {col}: ").strip()
+                    if ans in ["0", "1"]:
+                        input_map[col] = int(ans)
+                        break
+                    print("Invalid input. Please enter 0 or 1.")
+
+            # Show summary and ask for confirmation
+            print("\nYou entered:")
+            for col in manual_columns:
+                print(f"  {col}: {input_map[col]}")
+
+            while True:
+                confirm = input("Confirm this annotation? (y = save, r = redo): ").strip().lower()
+                if confirm in ["y", "r"]:
+                    break
+                print("Invalid input. Please enter 'y' to save or 'r' to redo.")
+
+            if confirm == "y":
+                # Accept and save this image's labels
+                break
+            else:
+                # Redo this image's labels
+                print("Okay, let's redo this image.\n")
 
         plt.close()
-    
-    # Reformat the inputs so that we can make a dataframe
-    df_dict = {}
-    df_dict["fname"] = list(df["fname"])
 
-    for col in manual_columns:
-        df_dict[col] = [x[col] for x in manual_input]
+        # Append and save immediately so progress isn't lost
+        tagged_df = pd.concat(
+            [tagged_df, pd.DataFrame([input_map])],
+            ignore_index=True
+        )
+        tagged_df.to_csv(csv_path, index=False)
+        tagged_files.add(fname)
 
-    input_df = pd.DataFrame(df_dict)
-    input_df.to_csv(f"{path}/manual_tagging_content.csv")
+        print(f"Saved progress. {len(tagged_df)}/{len(df)} complete.")
 
 
 if __name__ == "__main__":
