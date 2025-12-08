@@ -119,6 +119,155 @@ def tag_images():
 
         print(f"Saved progress. {len(tagged_df)}/{len(df)} complete.")
 
+def tag_holdout_set01(output_csv="holdout_content_features.csv"):
+    manual_columns = [
+        "person", "building", "indoors", "bodwinPeople",
+        "event", "gameNight", "sports", "concert"
+    ]
+
+    holdout_dir = Path(f"{path}/data/HoldoutSet01")
+    if not holdout_dir.is_dir():
+        print(f"No HoldoutSet01 directory found at {holdout_dir}")
+        return
+
+    files = sorted([f for f in os.listdir(holdout_dir) if f.lower().endswith((".png", ".jpg", ".jpeg"))])
+    df = pd.DataFrame({"fname": files, "path": [str(holdout_dir / f) for f in files]})
+
+    csv_path = Path(f"{path}/{output_csv}")
+
+    if csv_path.is_file():
+        tagged_df = pd.read_csv(csv_path)
+        tagged_files = set(tagged_df["fname"].astype(str).tolist())
+        print(f"Loaded {len(tagged_files)} previously tagged images from {csv_path}.")
+    else:
+        tagged_df = pd.DataFrame(columns=["fname"] + manual_columns)
+        tagged_files = set()
+
+    for _, row in df.iterrows():
+        fname = row["fname"]
+        if fname in tagged_files:
+            continue
+
+        image_array = read_image(row["path"])
+        plt.imshow(image_array)
+        plt.axis("off")
+        plt.show(block=False)
+
+        while True:
+            input_map = {"fname": fname}
+            for col in manual_columns:
+                while True:
+                    ans = input(f"0/1 | {col}: ").strip()
+                    if ans in ["0", "1"]:
+                        input_map[col] = int(ans)
+                        break
+                    print("Invalid input. Please enter 0 or 1.")
+
+            print("\nYou entered:")
+            for col in manual_columns:
+                print(f"  {col}: {input_map[col]}")
+
+            while True:
+                confirm = input("Confirm this annotation? (y = save, r = redo): ").strip().lower()
+                if confirm in ["y", "r"]:
+                    break
+                print("Invalid input. Please enter 'y' to save or 'r' to redo.")
+
+            if confirm == "y":
+                break
+            else:
+                print("Okay, let's redo this image.\n")
+
+        plt.close()
+
+        tagged_df = pd.concat(
+            [tagged_df, pd.DataFrame([input_map])],
+            ignore_index=True
+        )
+        tagged_df.to_csv(csv_path, index=False)
+        tagged_files.add(fname)
+
+    print(f"Annotations saved/appended to {csv_path}")
+
+
+
+def tag_holdout_composition01(output_csv="holdout_composition_features.csv",
+                               manual_columns=None):
+    """
+    Manually tag composition features for images in data/HoldoutSet01.
+    - Default output file: holdout_composition_features.csv (in project folder)
+    - Provide manual_columns list to override default composition features.
+    """
+    if manual_columns is None:
+        manual_columns = [
+            "rule_of_thirds", "leading_lines", "symmetry", "centered",
+            "foreground", "background", "low_clutter", "strong_contrast"
+        ]
+
+    holdout_dir = Path(f"{path}/data/HoldoutSet01")
+    if not holdout_dir.is_dir():
+        print(f"No HoldoutSet01 directory found at {holdout_dir}")
+        return
+
+    files = sorted([f for f in os.listdir(holdout_dir) if f.lower().endswith((".png", ".jpg", ".jpeg"))])
+    df = pd.DataFrame({"fname": files, "path": [str(holdout_dir / f) for f in files]})
+
+    csv_path = Path(f"{path}/{output_csv}")
+
+    if csv_path.is_file():
+        tagged_df = pd.read_csv(csv_path)
+        tagged_files = set(tagged_df["fname"].astype(str).tolist())
+        print(f"Loaded {len(tagged_files)} previously tagged images from {csv_path}.")
+    else:
+        tagged_df = pd.DataFrame(columns=["fname"] + manual_columns)
+        tagged_files = set()
+
+    for _, row in df.iterrows():
+        fname = row["fname"]
+        if fname in tagged_files:
+            continue
+
+        image_array = read_image(row["path"])
+        plt.imshow(image_array)
+        plt.axis("off")
+        plt.show(block=False)
+
+        while True:
+            input_map = {"fname": fname}
+            for col in manual_columns:
+                while True:
+                    ans = input(f"0/1 | {col}: ").strip()
+                    if ans in ["0", "1"]:
+                        input_map[col] = int(ans)
+                        break
+                    print("Invalid input. Please enter 0 or 1.")
+
+            print("\nYou entered:")
+            for col in manual_columns:
+                print(f"  {col}: {input_map[col]}")
+
+            while True:
+                confirm = input("Confirm this annotation? (y = save, r = redo): ").strip().lower()
+                if confirm in ["y", "r"]:
+                    break
+                print("Invalid input. Please enter 'y' to save or 'r' to redo.")
+
+            if confirm == "y":
+                break
+            else:
+                print("Okay, let's redo this image.\n")
+
+        plt.close()
+
+        tagged_df = pd.concat(
+            [tagged_df, pd.DataFrame([input_map])],
+            ignore_index=True
+        )
+        tagged_df.to_csv(csv_path, index=False)
+        tagged_files.add(fname)
+
+    print(f"Composition annotations saved to {csv_path}")
+
 
 if __name__ == "__main__":
-    tag_images()
+    tag_holdout_composition01()
