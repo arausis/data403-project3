@@ -8,7 +8,31 @@ import matplotlib.pyplot as plt
 
 path = os.path.dirname(os.path.abspath(__file__))
 
+holdout_map = {
+    "TestSetImage01.png" : "Kelly",
+    "TestSetImage02.png" : "Alex",
+    "TestSetImage03.png" : "Alex",
+    "TestSetImage04.png" : "Alex",
+    "TestSetImage05.png" : "Alex",
+    "TestSetImage06.png" : "Alex",
+    "TestSetImage07.png" : "Kelly",
+    "TestSetImage08.png" : "Kelly",
+    "TestSetImage09.png" : "Kelly",
+    "TestSetImage10.png" : "Kelly",
+    "TestSetImage11.png" : "Kelly",
+    "TestSetImage12.png" : "Alex",
+    "TestSetImage13.png" : "Kelly",
+    "TestSetImage14.png" : "Kelly",
+    "TestSetImage15.png" : "Kelly",
+    "TestSetImage16.png" : "Kelly",
+    "TestSetImage17.png" : "Alex",
+    "TestSetImage18.png" : "Alex",
+    "TestSetImage19.png" : "Alex",
+    "TestSetImage20.png" : "Alex"
+}
+
 def get_holdout(df):
+
     df_holdout = df.sample(frac=0.2, random_state=42)
     df_training  = df.drop(df_holdout.index)
     return df_holdout, df_training
@@ -23,7 +47,11 @@ def get_dirs():
     kelly_pics = [f"{path}/data/Kelly/{fname}" for fname in kelly_files]
     klabel = [1] * len(kelly_pics)
 
-    df = pd.DataFrame({"fname" : alex_files + kelly_files, "label": alabel + klabel, "path" : alex_pics + kelly_pics})
+    first_holdout = os.listdir(f"{path}/data/HoldoutSet01")
+    holdout_pics = [f"{path}/data/HoldoutSet01/{fname}" for fname in first_holdout]
+    holdout_labels = [holdout_map[x] for x in first_holdout]
+
+    df = pd.DataFrame({"fname" : alex_files + kelly_files + first_holdout, "label": alabel + klabel + holdout_labels, "path" : alex_pics + kelly_pics + holdout_pics})
     return df
 
 def read_image(image_path):
