@@ -34,8 +34,7 @@ comp = pd.read_csv(path + "/composition_features.csv")
 content = pd.read_csv(path + "/content_features.csv")
 content = content.rename(columns={'fname':'image'})
 
-holdout_comp = pd.read_csv(f"{path}/holdout_composition_features.csv")
-holdout_comp["image"] = holdout_comp["fname"]
+holdout_comp = pd.read_csv(f"{path}/holdout_set_01_comp.csv")
 
 holdout_content = pd.read_csv(f"{path}/holdout_content_features.csv")
 holdout_content["image"] = holdout_content["fname"]
@@ -43,18 +42,12 @@ holdout_content["image"] = holdout_content["fname"]
 holdout_features = pd.merge(holdout_comp, holdout_content, on="image")
 holdout_features["y"] = holdout_features["image"].map(lambda x: int(holdout_map[x] == "Kelly") )
 
-holdout_features.drop(["fname_x", "fname_y"], inplace=True, axis=1)
-holdout_features.drop(["who_took_x", "who_took_y"], inplace=True, axis=1)
+holdout_features.drop(["fname", "who_took"], inplace=True, axis=1)
 
 features = pd.merge(comp, content, on = "image")
 features["y"] = features["image"].str.contains("Kelly").astype(int)
 
-print(features.columns)
-print(holdout_features.columns)
-exit()
-
 features = pd.concat([holdout_features, features], ignore_index=True)
-featuers = features[['image', 'tilted', 'clearFocalObject', 'vibrant', 'selfie','majoritySky', 'person', 'building', 'indoors', 'bodwinPeople', 'event','gameNight', 'sports', 'concert']]
 
 X = features.drop(['image', 'y'], axis = 1)
 y = features['y']
@@ -67,11 +60,14 @@ scaler = StandardScaler()
 X_train_scaled = scaler.fit_transform(X_train)
 X_test_scaled = scaler.transform(X_test)
 
+y_train = y_train.astype(int) 
+
 l = [10000, 1000, 100, 10, 1, 0.1]
 for i in l:
     model = LogisticRegression(penalty = "l1", solver = "saga", C = i, max_iter = 5000)
     model.fit(X_train_scaled, y_train)
     print("Train accuracy:", model.score(X_train_scaled, y_train))
+
 
 model1 = LogisticRegression(penalty = "l1", solver = "saga", C = 1, max_iter = 5000)
 model1.fit(X_train_scaled, y_train)
@@ -79,4 +75,8 @@ model1.fit(X_train_scaled, y_train)
 coefs = pd.DataFrame({
     "feature": features.drop(['image','y'], axis = 1).columns,
     "coef": model1.coef_[0]})
+
 print(coefs)
+
+
+
