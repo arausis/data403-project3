@@ -45,15 +45,16 @@ holdout_features["y"] = holdout_features["image"].map(lambda x: int(holdout_map[
 
 holdout_features.drop(["fname_x", "fname_y"], inplace=True, axis=1)
 holdout_features.drop(["who_took_x", "who_took_y"], inplace=True, axis=1)
-print(holdout_features[ ])
 
 features = pd.merge(comp, content, on = "image")
 features["y"] = features["image"].str.contains("Kelly").astype(int)
 
+print(features.columns)
+print(holdout_features.columns)
+exit()
+
 features = pd.concat([holdout_features, features], ignore_index=True)
 featuers = features[['image', 'tilted', 'clearFocalObject', 'vibrant', 'selfie','majoritySky', 'person', 'building', 'indoors', 'bodwinPeople', 'event','gameNight', 'sports', 'concert']]
-print(features)
-exit()
 
 X = features.drop(['image', 'y'], axis = 1)
 y = features['y']
