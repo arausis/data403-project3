@@ -36,13 +36,13 @@ content = content.rename(columns={'fname':'image'})
 
 holdout_comp = pd.read_csv(f"{path}/holdout_set_01_comp.csv")
 
-holdout_content = pd.read_csv(f"{path}/holdout_content_features.csv")
+holdout_content = pd.read_csv(f"{path}/holdout_set_01_content.csv")
 holdout_content["image"] = holdout_content["fname"]
 
 holdout_features = pd.merge(holdout_comp, holdout_content, on="image")
 holdout_features["y"] = holdout_features["image"].map(lambda x: int(holdout_map[x] == "Kelly") )
 
-holdout_features.drop(["fname", "who_took"], inplace=True, axis=1)
+holdout_features.drop(["fname"], inplace=True, axis=1)
 
 features = pd.merge(comp, content, on = "image")
 features["y"] = features["image"].str.contains("Kelly").astype(int)
@@ -76,7 +76,15 @@ coefs = pd.DataFrame({
     "feature": features.drop(['image','y'], axis = 1).columns,
     "coef": model1.coef_[0]})
 
-print(coefs)
 
+holdout_02_content = pd.read_csv(f"{path}/holdout_set_02_content.csv")
+holdout_02_comp = pd.read_csv(f"{path}/holdout_set_02_comp.csv")
+holdout_02 = pd.merge(holdout_02_content, holdout_02_comp, on="image")
 
+holdout_02["sum"] = 0
 
+for feature in list(coefs["feature"]):
+    holdout_02["sum"] = holdout_02["sum"] + holdout_02[feature] *coefs[coefs["feature"].map(lambda x: x == feature)]["coef"].iloc[0]
+
+holdout_02["prediction"] = holdout_02["sum"].map(lambda x: "Kelly" if x > 0.5 else "Alex")
+print(holdout_02[["image", "prediction"]])
